@@ -1,0 +1,61 @@
+#include <stdio.h>
+
+typedef struct
+{
+	float realpart;
+	float imagpart;
+}Complex;
+
+void assign(Complex* A, float real, float imag)
+{
+	A->realpart = real;
+	A->imagpart = imag;
+}
+
+void add(Complex* C, Complex A, Complex B)
+{
+	C->realpart = A.realpart + B.realpart;
+	C->imagpart = A.imagpart + B.imagpart;
+}
+
+void multiply(Complex* C, Complex A, Complex B)
+{
+	C->realpart = A.realpart * B.realpart - A.imagpart * B.imagpart;
+	C->imagpart = A.imagpart * B.realpart + A.realpart * B.imagpart;
+}
+
+void divide(Complex* C, Complex A, Complex B)
+{
+	C->realpart = (A.realpart * B.realpart + A.imagpart * B.imagpart) / (B.realpart * B.realpart + B.imagpart * B.imagpart);
+	C->imagpart = (A.imagpart * B.realpart - A.realpart * B.imagpart) / (B.realpart * B.realpart + B.imagpart * B.imagpart);
+
+}
+
+
+int main()
+{
+	Complex Z1, Z2, Z3, Z4, Z5;
+	assign(&Z1, 8, 6);
+	assign(&Z2, 4, 3);
+	add(&Z3, Z1, Z2);
+	multiply(&Z4, Z1, Z2);
+	divide(&Z5, Z3, Z4);
+	if (Z5.imagpart != 0&&Z5.realpart!=0)
+	{
+		printf("the result is %f+%fi\n", Z5.realpart, Z5.imagpart);
+	}
+	else if (Z5.imagpart == 0 && Z5.realpart != 0)
+	{
+		printf("the result is %f\n", Z5.realpart);
+	}
+	else if (Z5.realpart == 0 && Z5.imagpart != 0)
+	{
+		printf("the result is %fi\n", Z5.imagpart);
+	}
+	else
+	{
+		printf("the result is 0\n");
+	}
+	
+	return 0;
+}
