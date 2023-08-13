@@ -1,0 +1,125 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define OK 1
+#define ERROR 0
+#define OVERFLOW -2
+#define TRUE 1
+#define FALSE 0
+#define MAXLENGTH 1000
+typedef int Status;
+typedef char ElemType;
+
+typedef struct
+{
+	ElemType* elem;
+	int length;
+
+}SqList;
+
+//构造一个空的顺序表
+Status initList_Sq(SqList *L)
+{
+	L->elem = (ElemType*)malloc(sizeof(ElemType) * MAXLENGTH);
+	if (!L->elem)
+	{
+		return EXIT(OVERFLOW);
+	}
+	L->length = 0;
+	return OK;
+}
+
+//销毁一个顺序表
+void DestroyList_Sq(SqList * L)
+{
+	if (L->elem)
+	{
+		free(L);
+	}
+
+}
+
+//清除一个顺序表
+void ClearList_Sq(SqList* L)
+{
+	L->length = 0;
+}
+
+//获取顺序表的长度
+int GetLength_Sq(SqList* L)
+{
+	return L->length;
+}
+
+//判断是否为空
+int IsEmpty(SqList* L)
+{
+	if (L->length == 0)
+	{
+		return TRUE;
+	}
+	
+	return FALSE;
+}
+
+//从线性表中取值（根据i得到数组里面的值）
+
+int GetElem_Sq(SqList* L, int i, ElemType *e)
+{
+	if (i > L->length || i <= 0)
+	{
+		return ERROR;
+	}
+	*e = L->elem[i-1];
+	return OK;
+}
+
+//查找元素
+int LocateElem(SqList* L, ElemType e)
+{
+	int i;
+	for (i = 0;i < L->length;i++)
+	{
+		if (L->elem[i] == e)
+		{
+			return 1+i;
+		}
+	}
+	return 0;
+}
+
+//顺序表的插入
+Status ListInsert_Sq(SqList* L, int i, ElemType e)
+{
+	if (i<1 || i>L->length + 1)
+	{
+		return ERROR;
+	}
+	if (L->length == MAXLENGTH)
+	{
+		return ERROR;
+	}
+	int j;
+	for (j = L->length - 1;j >= i - 1;j--)
+	{
+		L->elem[j + 1] = L->elem[j];
+	}
+	L->elem[i-1] = e;
+	L->length++;
+	return OK;
+}
+
+//删除顺序表中的某个元素
+Status ListDelect_Sq(SqList* L, int i)
+{
+	if (i<1 || i>L->length)
+	{
+		return ERROR;
+	}
+	int j;
+	for (j = i;j < L->length;j++)
+	{
+		L->elem[j - 1] = L->elem[j];
+	}
+	L->length--;
+	return OK;
+}
