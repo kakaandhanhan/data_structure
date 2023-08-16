@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define OK 1
+#define ERROR 0
+
+typedef char Elemtype;
+typedef int Status;
+
+
+typedef struct LNode
+{
+	Elemtype data;
+	struct LNode* next;
+}LNode ,*LinkList;
+
+//循环链表的初始化
+void InitList(LinkList* L)
+{
+	(*L) = (LinkList)malloc(sizeof(LNode));
+	(*L) = (*L)->next;
+}
+
+//判断是否为空
+int ListEmpty(LinkList L)
+{
+	if (L == L->next)
+	{
+		return 1;
+	}
+	return 0;
+}
+
+//销毁链表，开始没有反应过来，后来说，因为循环链表是个圈，所以任何地方都可以当作尾结点和首节点。
+Status DestroyList(LinkList* L)
+{
+	LinkList p;
+	p = (*L)->next;
+	(*L)->next = NULL;
+	(*L) = p;
+	while ((*L) != NULL)
+	{
+		p = (*L);
+		(*L) = (*L)->next;
+		free(p);
+	}
+
+
+
+}
+
+//清空链表
+Status ClearList(LinkList* L)
+{
+	LinkList p,q;
+	p = (*L)->next;
+	while (p != (*L))
+	{
+		q = p;
+		p = p->next;
+		free(q);
+
+	}
+	(*L)->next = (*L);
+	return OK;
+}
+
+//求表长
+int ListLength(LinkList L)
+{
+	int i = 0;
+	LinkList p;
+	p = L->next;
+	while (p != L)
+	{
+		i++;
+		p = p->next;
+	}
+	return i;
+}
+
+//头插法
+void CreateList_H(LinkList* L, Elemtype e)
+{
+	LinkList p;
+	p = (LinkList)malloc(sizeof(LNode));
+	p->data = e;
+	p->next = (*L)->next;
+	(*L)->next = p;
+}
+
+//尾插法
+void CreateList_T(LinkList* L, Elemtype e)
+{
+	LinkList p,q;
+	p = (LinkList)malloc(sizeof(LNode));
+	p->data = e;
+	q = (*L);
+	while (q->next != (*L))
+	{
+		q = q->next;
+	}
+	q->next = p;
+	p->next = (*L);
+}
+
+//合并两个循环链表，将b放在a后,Ta,Tb为尾结点
+LinkList* Connect(LinkList* Ta, LinkList* Tb)
+{
+	LinkList p = (*Ta)->next;
+	LinkList q = (*Tb)->next->next;
+	(*Ta)->next = q;
+	free((*Tb)->next);
+	(*Tb)->next = p;
+	return Tb;
+}
