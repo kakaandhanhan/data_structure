@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define OK 1
+#define ERROR 0
+
+typedef int Status;
+typedef char Elemtype;
+
+typedef struct DNode
+{
+	Elemtype data;
+	struct LNode* prior;
+	struct LNode* next;
+
+}DNode,*DLinkList;
+
+//初始化双向链表
+void InitDList(DLinkList* L)
+{
+	(*L) = (DLinkList)malloc(sizeof(DNode));
+	(*L)->prior = NULL;
+	(*L)->next = NULL;
+}
+
+//插入结点
+void InsertDList(DLinkList* L, Elemtype e,int i)
+{
+	DLinkList p;
+	p = (DLinkList)malloc(sizeof(DNode));
+	p->data = e;
+	DLinkList q;
+	int j = 1;
+	q = (*L)->next;
+	while (j < i && q != NULL)
+	{
+		q = q->next;
+		j++;
+	}
+	p->next = q->next;
+	if (q->next != NULL)
+	{
+		q->next->prior = p;
+	}
+	q->next = p;
+	p->prior = q;
+	
+}
+
+//删除结点
+Status DelectDLNode(DLinkList* L, int i)
+{
+	if (i < 1)
+	{
+		return ERROR;
+	}
+	DLinkList p;
+	p = (*L)->next;
+	int j=1;
+	while (j < i && p->next != NULL)
+	{
+		p = p->next;
+		j++;
+	}
+	p->prior->next = p->next;
+	p->next->prior = p->prior;
+	free(p);
+	return OK:
+}
