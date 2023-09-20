@@ -1,0 +1,136 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MaxSize 100
+#define OK 1
+#define ERROR 0
+#define OVERFLOW -2
+#define TRUE 1
+#define FALSE 0
+
+typedef int SElemType;
+typedef int Status;
+
+typedef struct SqStack
+{
+	int* top;
+	int* base;
+	int stacksize;
+
+}SqStack;
+
+//初始化栈
+Status InitStack(SqStack* s)
+{
+	s->base = (SElemType*)malloc(sizeof(SElemType) * MaxSize);
+	if (!(s->base))
+	{
+		return ERROR;
+	}
+	s->top = s->base;
+	s->stacksize = MaxSize;
+	return OK;
+}
+
+//压入n个元素
+Status pushElems(SqStack* s, int n)
+{
+	int i;
+	if (!(s->base))
+	{
+		return ERROR;
+	}
+	if (s->top - s->base == s->stacksize)
+	{
+		return ERROR;
+	}
+	printf("请输入n个元素\n");
+	for (i = 0;i < n;i++)
+	{
+		scanf("%d", &(s->top));
+		s->top++;
+	}
+	return OK;
+}
+
+//判断是否为空
+Status isEmpty(SqStack* s)
+{
+	if (s->base =s->top)
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+//清空顺序栈
+Status clearStack(SqStack* s)
+{
+	if (s->base == NULL)
+	{
+		return ERROR;
+	}
+	s->top = s->base;
+	return OK;
+}
+
+//销毁顺序栈
+Status destroyStack(SqStack* s)
+{
+	if (s->base == NULL)
+	{
+		return ERROR;
+	}
+	SElemType* q;
+	while (s->base != s->top)
+	{
+		q = s->base++;
+		free(s->base);
+		s->base = q;
+		s->stacksize--;
+	}
+	s->stacksize = 0;
+	s->top = s->base = NULL;
+	return OK;
+}
+
+//求顺序表长度
+int StackLength(SqStack s)
+{
+	return s.top - s.base;
+}
+
+//入栈
+Status push(SqStack* s, SElemType e)
+{
+	if (s->stacksize == MaxSize)
+	{
+		return ERROR;
+	}
+	*(s->top) = e;
+	s->top++;
+	return OK;
+}
+
+//出栈
+Status pop(SqStack* s, SElemType* e)
+{
+	if (s->base == s->top)
+	{
+		return ERROR;
+	}
+	*e=*(s->top)--;
+	return OK;
+}
+
+//遍历
+void show(SqStack* s)
+{
+	printf("当前顺序栈情况\n");
+	for (s->top = s->top - 1;s->top >= s->base;s->top--)
+	{
+		printf("%d\n", *(s->top));
+	}
+
+}
+
