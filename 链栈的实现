@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef int ElemType;
+typedef struct StackNode
+{
+	ElemType data;
+	struct StackNode* next;
+}StackNode,*LinkStack;
+
+//初始化栈
+void InitStack(LinkStack* s)
+{
+	*s = NULL;
+}
+
+//入栈
+void push(LinkStack* s, ElemType x)
+{
+	LinkStack p = (LinkStack)malloc(sizeof(StackNode));
+	p->data = x;
+	if (*s == NULL)
+	{
+		*s = p;
+		p->next = NULL;
+	}
+	else
+	{
+		p->next = *s;
+		*s = p;
+	}
+
+}
+
+//显示栈内数据
+void show(LinkStack *s)
+{
+	LinkStack t = *s;
+	while (t != NULL)
+	{
+		printf("%d\n", t->data);
+		t = t->next;
+	}
+
+}
+
+
+//出栈
+void pop(LinkStack* s)
+{
+	LinkStack p;
+	p = *s;
+	*s = p->next;
+	free(p);
+	p = NULL;
+}
+
+//判断栈是空
+bool IsEmpty(LinkStack* s)
+{
+	if (*s == NULL)
+	{
+		return true;
+	}
+	return false;
+}
+
+//获取栈顶元素
+bool GetTop(LinkStack* s, ElemType* e)
+{
+	if (IsEmpty(s))
+	{
+		return false;
+	}
+	*e = (*s)->data;
+	return true;
+}
+
+//获取栈内元素个数
+int length(LinkStack* s)
+{
+	int len = 0;
+	LinkStack p = *s;
+	while (p != NULL)
+	{
+		p = p->next;
+		len++;
+	}
+	return len;
+}
+
+//清空栈
+void Clear(LinkStack* s)
+{
+	while (*s != NULL)
+	{
+		pop(s);
+	}
+}
