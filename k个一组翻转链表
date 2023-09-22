@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+struct ListNode {
+     int val;
+    struct ListNode *next;
+ };
+
+
+struct ListNode* reverse(struct ListNode* head)
+{
+    struct ListNode* dummy = (struct ListNode*)malloc(sizeof(struct ListNode));
+    dummy->next = head;
+    struct ListNode* pre = dummy;
+    struct ListNode* cur = head;
+    while (cur)
+    {
+        struct ListNode* next = cur->next;
+        cur->next = pre;
+        pre = cur;
+        cur = next;
+    }
+    return pre;
+}
+
+
+
+struct ListNode* reverseKGroup(struct ListNode* head, int k) 
+{
+    struct ListNode* dummy = (struct ListNode*)malloc(sizeof(struct ListNode));
+    dummy->next = head;
+    struct ListNode* fast, * slow;
+    fast = dummy;
+    slow = dummy;
+    int i;
+    while (fast != NULL && slow != NULL)
+    {
+        for (i = 0;i < k&&slow!=NULL;i++)
+        {
+            slow = slow->next;
+        }
+        if (slow == NULL)
+        {
+            break;
+        }
+
+        struct ListNode* start = fast->next;
+        struct ListNode* next = slow->next;
+        fast->next = reverse(start);
+        start->next = next;
+        fast = start;
+        slow = fast;
+    }
+    return dummy->next;
+}
