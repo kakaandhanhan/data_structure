@@ -1,0 +1,42 @@
+#include <stdlib.h>
+#include <stdio.h>
+
+  struct ListNode {
+     int val;
+     struct ListNode *next;
+  };
+ 
+
+
+
+struct ListNode* deleteDuplicates(struct ListNode* head) 
+{
+    if (head == NULL || head->next == NULL)
+    {
+        return head;
+    }
+    struct ListNode* dummy = (struct ListNode*)malloc(sizeof(struct ListNode));
+    dummy->next = head;
+    struct ListNode* pre = dummy;
+    int k = -1;
+    
+    while (pre->next&&pre->next->next)
+    {
+        if (pre->next->val == pre->next->next->val )
+        {
+            k = pre->next->val;
+            while (pre->next && pre->next->val == k)
+            {
+                struct ListNode* temp = pre->next;
+                pre->next = pre->next->next;
+                free(temp);
+            }
+           
+        }
+        else
+        {
+            pre = pre->next;
+        }
+    }
+    return dummy->next;
+}
