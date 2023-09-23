@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+
+
+ struct ListNode {
+    int val;
+    struct ListNode *next;
+  };
+ 
+bool hasCycle(struct ListNode* head) 
+{
+    //看了题解说Floyd判圈法。啊啊啊啊，就当是学的新的一种思想吧，把快慢指针放到了一个新的高度上。
+    if (head == NULL||head->next==NULL)
+    {
+        return false;
+    }
+    struct ListNode* slow = head;
+    struct ListNode* fast = head->next;
+    while (fast != slow)
+    {
+        if (fast == NULL || fast->next == NULL)
+        {
+            return false;
+        }
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    return true;
+
+}
