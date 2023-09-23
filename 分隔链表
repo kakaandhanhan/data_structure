@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+  struct ListNode 
+  {
+     int val;
+      struct ListNode *next;
+  };
+ 
+
+
+struct ListNode* partition(struct ListNode* head, int x) 
+{
+    //自己的想法太复杂了，啊啊啊，看完wp发现其实维护的确实只有两个链表，一个大于的，一个小于的。
+    //
+    struct ListNode* small = malloc(sizeof(struct ListNode));
+    struct ListNode* smallhead = small;
+    struct ListNode* large = malloc(sizeof(struct ListNode));
+    struct ListNode* largehead = large;
+    while (head)
+    {
+        if (head->val < x)
+        {
+            small->next = head;
+            small = small->next;
+        }
+        else
+        {
+            large->next = head;
+            large = large->next;
+
+        }
+        head = head->next;
+    }
+    large->next = NULL;
+    small->next = largehead->next;
+    return smallhead->next;
+}
