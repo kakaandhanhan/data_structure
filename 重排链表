@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+ struct ListNode {
+     int val;
+     struct ListNode *next;
+  };
+ 
+ struct ListNode* middleNode(struct ListNode* head)
+ {
+     struct ListNode* fast = head, * slow = head;
+     while (fast->next != NULL && fast->next->next != NULL)
+     {
+         slow = slow->next;
+         fast = fast->next->next;
+     }
+     return slow;
+ }
+
+ struct ListNode* reverseNode(struct ListNode* head)
+ {
+    
+     struct ListNode* pre = NULL;
+     struct ListNode* curr = head;
+     while (curr)
+     {
+         struct ListNode* next = curr->next;
+         curr->next = pre;
+         pre = curr;
+         curr = next;
+         
+     }
+    
+     return pre;
+ }
+
+ void mergeNode(struct ListNode* l1, struct ListNode* l2)
+ {
+     struct ListNode* tmpl1;
+     struct ListNode* tmpl2;
+     while (l1 != NULL && l2 != NULL)
+     {
+         tmpl1 = l1->next;
+         tmpl2 = l2->next;
+         l1->next = l2;
+         l2->next = tmpl1;
+         l1 = tmpl1;
+         l2 = tmpl2;
+     }
+
+ }
+
+
+ void reorderList(struct ListNode* head) 
+ {
+     //采用的方法是中间断开再反转，再连接啊啊啊啊，我的脑子为什么想不出来，死了。
+     if (head == NULL)
+         return;
+     struct ListNode* mid = middleNode(head);
+     struct ListNode* l1 = head;
+     struct ListNode* l2 = mid->next;
+     mid->next = NULL;
+     l2 = reverseNode(l2);
+     mergeNode(l1, l2);
+
+ }
