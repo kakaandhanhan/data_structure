@@ -1,0 +1,272 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 100
+#define OK 1
+#define ERROR 0
+#define OVERFLOW -2
+
+typedef int Status;
+typedef struct BookNode
+{
+	char number[MAX];
+	char name[MAX];
+	float price;
+	struct BookNode* next;
+}BookNode, * BookList;
+
+Status InitBook(BookList *L)
+{
+	*L = malloc(sizeof(BookNode));
+	if (!(*L))
+	{
+		return ERROR;
+	}
+	(*L)->next = NULL;
+	return OK;
+}
+
+Status createBook(BookList L, int* totalnumber)
+{
+	*totalnumber = 0;
+	char temp_number[MAX];
+	char temp_name[MAX];
+	float temp_price;
+	BookNode* p = L;
+	printf("请输入书号，书名，和价格\n");
+	while (scanf("%s %s %f", temp_number, temp_name, &temp_price) && (strcmp(temp_name, "0")!=0 || strcmp(temp_number, "0")!=0 || temp_price != 0))
+	{
+		BookNode* q = malloc(sizeof(BookNode));
+		if (!q)
+		{
+			return ERROR;
+		}
+		strcpy(q->number, temp_number);
+		strcpy(q->name, temp_name);
+		q->price = temp_price;
+		q->next = NULL;
+		(*totalnumber)++;
+		p->next = q;
+		p = q;
+	}
+	return OK;
+}
+
+Status inputBook(BookList L, int* totalnumber)
+{
+	BookNode* p = L->next;
+	printf("图书总数为%d\n", *totalnumber);
+
+	while (p)
+	{
+		printf("%s %s %.2f\n", p->number, p->name, p->price);
+		p = p->next;
+	}
+	return OK;
+}
+
+Status inputsolo(BookNode* p)
+{
+	printf("%s %s %.2f\n", p->number, p->name, p->price);
+}
+float calaver(BookList L, int* totalnumber)
+{
+	BookNode* p = L->next;
+	float all = 0;
+	while (p)
+	{
+		all = all + p->price;
+		p = p->next;
+	}
+	float aver = all / (float)(*totalnumber);
+	return aver;
+}
+
+Status modifyprice(BookList L, float* aver)
+{
+	BookNode* p = L->next;
+	while (p)
+	{
+		if (p->price < *aver)
+		{
+			p->price = p->price * 1.2;
+		}
+		else
+		{
+			p -> price = p->price * 1.1;
+		}
+		p = p->next;
+
+	}
+	return OK;
+}
+
+BookList findMax(BookList L, int* all, BookNode* pmax)
+{
+	pmax = NULL;
+	float max = 0;
+	BookNode* p = L->next;
+	while (p)
+	{
+		if (p->price > max)
+		{
+			max = p->price;
+			pmax = p;
+		}
+		p = p->next;
+	}
+	p = pmax;
+	BookList L2=NULL;
+	InitBook(&L2);
+	BookNode* temp = L2;
+	*all = 0;
+	while (p)
+	{
+		if (p->price == pmax->price)
+		{
+			(*all)++;
+			temp->next = malloc(sizeof(BookNode));
+			temp = temp->next;
+			temp->price = p->price;
+			strcpy(temp->number, p->number);
+			strcpy(temp->name, p->name);
+			temp->next = NULL;
+
+		}
+		p = p->next;
+	}
+	return L2;
+}
+
+Status insertBook(BookList L, int* place, BookNode* newNode)
+{
+	scanf("%d", place);
+	BookNode* p = L;
+	int i = 0;
+	while (p && i < *place)
+	{
+		p = p->next;
+		i++;
+	}
+	if (i > *place || !p)
+	{
+
+		return ERROR;
+	}
+	newNode = malloc(sizeof(BookNode));
+	if (!newNode)
+	{
+		return ERROR;
+	}
+	scanf("%s %s %f", newNode->number, newNode->name, &(newNode->price));
+	newNode->next = p->next;
+	p->next = newNode;
+	return OK;
+}
+
+Status delectBook(BookList L, int* place)
+{
+	scanf("%d", place);
+	int i = 0;
+	BookNode* p = L;
+	BookNode* temp = NULL;
+	while (p && i < *place)
+	{
+		p = p->next;
+		i++;
+	}
+	if (!p || i > *place)
+	{
+		return ERROR;
+	}
+	temp = p->next;
+	p->next = temp->next;
+	free(temp);
+	return OK;
+}
+
+Status delectSame(BookList L, int* totalnumber)
+{
+	BookNode* p = L->next;
+	while (p)
+	{
+		BookNode* temp = p;
+		while (temp->next)
+		{
+			if (strcmp(temp->next->number, p->number) == 0)
+			{
+				BookNode* q = temp->next;
+				temp->next = q->next;
+				free(q);
+				(*totalnumber)--;
+			}
+			else
+			{
+				temp = temp->next;
+			}
+			
+		}
+		p = p->next;
+	}
+	return OK;
+}
+int main()
+{
+	BookList L = NULL;
+	//初始化图书管理系统。
+	InitBook(&L);
+	//创建图书信息
+	int totalnumber;//图书总数
+	createBook(L, &totalnumber);
+	printf("图书信息为\n");
+	inputBook(L, &totalnumber);
+	//计算平均价格
+	float aver = 0;
+	aver = calaver(L, &totalnumber);
+	printf("平均价格为%.2f\n", aver);
+	//对图书信息进行修改
+	modifyprice(L, &aver);
+	printf("修改后的图书信息为\n");
+	inputBook(L, &totalnumber);
+	//对最贵的书籍进行查找
+	BookNode* pmax = NULL;//第一本最贵的书籍
+	BookList* L2 = NULL;//最贵书籍的所有链接。
+	int all = 0;
+	L2 = findMax(L, &all, pmax);
+	printf("输出最贵的书籍信息\n");
+	inputBook(L2, &all);
+	//插入书籍
+	printf("请输入插入的书籍的位置，插入的位置是在输入的数字之后\n");
+	int place = 0;
+	BookNode* newNode = NULL;
+	int reflect = 5;
+	reflect = insertBook(L, &place, newNode);
+	//输出插入后的书籍
+	if (reflect == 1)
+	{
+		totalnumber++;
+		inputBook(L, &totalnumber);
+	}
+	else
+	{
+		printf("抱歉，入库位置非法!\n");
+	}
+	//删除书籍
+	printf("请输入需要删除的书籍位置，删除的位置是输入的这一本\n");
+	reflect = delectBook(L, &place);
+	if (reflect == 1)
+	{
+		totalnumber--;
+		inputBook(L, &totalnumber);
+
+	}
+	else
+	{
+		printf("抱歉，出库位置非法!\n");
+	}
+	//书籍去重
+	delectSame(L, &totalnumber);
+	inputBook(L, &totalnumber);
+	return 0;
+}
