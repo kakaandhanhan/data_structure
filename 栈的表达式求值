@@ -1,0 +1,189 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 1000
+#define ERROR 0
+#define OK 1
+typedef int datatype;
+typedef int Status;
+
+
+char Precede[7][7] = { {'>','>','<','<','<','>','>'},
+	{'>','>','<','<','<','>','>'},
+	{'>','>','>','>','<','>','>'},
+	{'>','>','>','>','<','>','>'},
+	{'<','<','<','<','<','=','0'},
+	{'>','>','>','>','0','>','>'},
+	{'<','<','<','<','<','0','='} };
+
+typedef struct SqStack
+{
+	datatype* base;
+	datatype* top;
+	int stacksize;
+}SqStack;
+
+//初始化栈（这是两个数字栈)
+Status Init(SqStack* S)
+{
+	S->base = (datatype*)malloc(sizeof(datatype) * MAX);
+	if (!S->base)
+	{
+		printf("创建顺序栈失败\n");
+		return ERROR;
+	}
+	S->top = S->base;
+	S->stacksize = MAX;
+	return OK;
+}
+
+//压入数据PUSH
+Status Push(SqStack* S, datatype e)
+{
+	if (S->top-S->base == S->stacksize)
+	{
+		printf("栈满了\n");
+		return ERROR;
+	}
+	*S->top++ = e;
+	return OK;
+}
+
+//弹出数据POP
+datatype Pop(SqStack* S)
+{
+	if (S->top == S->base)
+	{
+		printf("栈空，无法弹出\n");
+		return ERROR;
+	}
+	int result = *--S->top;
+	return result;
+}
+
+//给运算符赋予下标
+int Sub(char ch)
+{
+	switch (ch)
+	{
+	case '+':
+		return 0;
+	case '-':
+		return 1;
+	case '*':
+		return 2;
+	case '/':
+		return 3;
+	case '(':
+		return 4;
+	case ')':
+		return 5;
+	case '#':
+			return 6;
+	}
+}
+
+//判断两个运算符的优先级返回大小符
+char Getpre(char ch1, char ch2)
+{
+	return Precede[Sub(ch1)][Sub(ch2)];
+}
+
+int Gettop(SqStack* S)
+{
+	if (S->top == S->base)
+	{
+		printf("栈空，没有顶层元素可以取出\n");
+		return ERROR;
+	}
+	return *(S->top - 1);
+}
+
+int operate(int x1, int x2, int theta)
+{
+	switch (theta)
+	{
+	case '+':
+		return x1 + x2;
+	case '-':
+		return x2 - x1;
+	case '*':
+		return x2 * x1;
+	case '/':
+		if (x1 != 0)
+		{
+			return x2 / x1;
+		}
+		else
+		{
+			printf("除数为0不存在\n");
+			exit(0);
+		}
+
+	}
+}
+
+int main()
+{
+	char str[MAX];
+	printf("请输入需要计算的表达式\n");
+	gets(str);
+	SqStack OPRT, OPND;//OPRT是操作符，OPND是运算数
+	Init(&OPRT);
+	Init(&OPND);
+	Push(&OPRT, '#' );//压入#，来判断是否到底
+	char ch;
+	int ch_number = 1;
+	ch = str[ch_number];
+	int theta;
+	int ope1, ope2;
+	while (ch != '#'||Gettop(&OPRT)!='#')
+	{
+		if (ch > '0' && ch < '9')
+		{
+			int x1 = ch - '0';
+			Push(&OPND, x1);
+			int x2 = x1;
+			ch_number++;
+			ch = str[ch_number];
+			while (ch > '0' && ch < '9')
+			{
+				x1 = ch - '0';
+				x2 = x2 * 10 + x1;
+				Pop(&OPND);
+				Push(&OPND, x2);
+				ch_number++;
+				ch = str[ch_number];
+			}
+
+		}
+		else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '(' || ch == ')' ||ch=='#')
+		{
+			switch (Getpre(Gettop(&OPRT), ch))
+			{
+			case '>':
+				theta = Pop(&OPRT);
+				ope1 = Pop(&OPND);
+				ope2 = Pop(&OPND);
+				Push(&OPND, operate(ope1, ope2, theta));
+				break;
+			case '=':
+				Pop(&OPRT);
+				ch_number++;
+				ch = str[ch_number];
+				break;
+			case '<':
+				Push(&OPRT, ch);
+				ch_number++;
+				ch = str[ch_number];
+				break;
+			}
+		}
+		else
+		{
+			printf("输入了非法的字符\n");
+			exit(0);
+		}
+	}
+	printf("最后的结果是%d\n", Gettop(&OPND));
+	return 0;
+}
