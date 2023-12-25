@@ -1,0 +1,185 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 10
+
+typedef struct student
+{
+	char name[MAX];
+	float score;
+}Student;
+
+int Initstudent(Student* s)
+{
+	printf("请输入学生信息。\n");
+	char name[MAX];
+	float score;
+	int number = 0;
+	while (scanf(" %s %f",name ,&score ) && strcmp(name, "0") &&  score!= 0)
+	{
+		number++;
+		strcpy(s[number].name, name);
+		s[number].score = score;
+	}
+	return number;
+}
+
+void insertsort(Student* s,int number)
+{
+	int i;
+	int j;
+	for (i = 2; i <= number; i++)
+	{
+		if (s[i].score < s[i - 1].score)
+		{
+			s[0].score = s[i].score;
+			strcpy(s[0].name, s[i].name);
+			for (j = i - 1;s[j].score>s[0].score ; j--)
+			{
+				s[j + 1].score = s[j].score;
+				strcpy(s[j + 1].name, s[j].name);
+			}
+			s[j + 1].score = s[0].score;
+			strcpy(s[j + 1].name, s[0].name);
+		}
+	}
+
+}
+
+void bubblesort(Student* s, int number)
+{
+	int i, j;
+	int temp_score;
+	char temp_name[MAX];
+	for (i =2;i<=number;i++ )
+	{
+		for (j = 1; j<=number-1;j++)
+		{
+			if (s[j + 1].score < s[j].score)
+			{
+				temp_score = s[j + 1].score;
+				s[j + 1].score = s[j].score;
+				s[j].score = temp_score;
+				strcpy(temp_name, s[j + 1].name);
+				strcpy(s[j + 1].name, s[j].name);
+				strcpy(s[j].name, temp_name);
+			}
+		}
+	}
+}
+
+void printresult(Student* s, int number)
+{
+	int i;
+	int level = 0;
+	for (i = number; i >= 1; i--)
+	{
+		if (s[i].score == s[i + 1].score && i != number) 
+		{
+			printf("%d %s %.2f\n", level, s[i].name, s[i].score);
+		}
+		else
+		{
+			level++;
+			printf("%d %s %.2f\n", level, s[i].name, s[i].score);
+		}
+	}
+}
+
+void swap(Student* s1, Student* s2)
+{
+	Student temp;
+	temp = *s1;
+	*s1 = *s2;
+	*s2 = temp;
+}
+
+void choosesort(Student* s, int number)
+{
+	int i;
+	float min;
+	int min_key;
+	int j;
+	for (i = 1; i < number; i++)
+	{
+		min = s[i].score;
+		for (j = i + 1; j <= number; j++)
+		{
+			if (s[j].score < min)
+			{
+				min = s[j].score;
+				min_key = j;
+			}
+		}
+		swap(&s[i], &s[min_key]);
+	}
+}
+
+void shell(Student* s, int gap, int number)
+{
+	int i;
+	for (i = gap; i <= number; i++)
+	{
+		Student tmp = s[i];
+		int j = i - gap;
+		for (j = i - gap; j >= 1; j = j - gap)
+		{
+			if (s[j].score > tmp.score)
+			{
+				s[j + gap] = s[j];
+			}
+			else
+			{
+				break;
+			}
+		}
+		s[j + gap] = tmp;
+	}
+}
+
+void shellsort(Student* s, int number)
+{
+	int lenth = number;
+	while (lenth >= 1)
+	{
+		lenth = lenth / 2;
+		shell(s, lenth,number);
+	}
+}
+
+
+int main()
+{
+	Student s[MAX];
+	int student_number;
+	student_number = Initstudent(s);
+	int choice;
+	printf("请选择排序类型：1.插入排序，2.冒泡排序,3.选择排序,4.希尔排序\n");
+	scanf("%d", &choice);
+	if (choice == 1)
+	{
+		insertsort(s, student_number);
+	}
+	else if (choice == 2)
+	{
+		bubblesort(s, student_number);
+		
+	}
+	else if (choice == 3)
+	{
+		choosesort(s, student_number);
+	}
+	else if (choice == 4)
+	{
+		shellsort(s, student_number);
+	}
+	else
+	{
+		printf("输入不正确\n");
+		return 0;
+	}
+	printresult(s, student_number);
+	return 0;
+
+}
