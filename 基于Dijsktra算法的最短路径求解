@@ -1,0 +1,155 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 99999
+#define MAXVEX 100
+#define true 1
+#define false 0
+
+int Path[MAXVEX];
+int S[MAXVEX];
+int D[MAXVEX];
+
+typedef char Vexstype;
+typedef int Arctype;
+
+typedef struct Graph
+{
+	Vexstype vex[MAXVEX];//顶点
+	Arctype arc[MAXVEX][MAXVEX];//邻接矩阵
+	int vexnum, arcnum;//顶点和边数
+}Graph;
+
+int locatenum(Graph* city, char citynum)
+{
+	int i;
+	for (i = 0; i < city->vexnum; i++)
+	{
+		if (citynum == city->vex[i])
+		{
+			return i;
+		}
+	}
+}
+int  Init(Graph* city,char *start,char *end)
+{
+	int i;
+	int j;
+	int  weight;
+	char city1, city2;
+	printf("请输入城市个数和路径条数\n");
+	scanf("%d %d", &city->vexnum,&city->arcnum);
+	fflush(stdin);
+	if (city->vexnum == 0 || city->arcnum == 0)
+	{
+		return 0;
+	}
+	printf("请输入城市名\n");
+	fflush(stdin);
+	for (i = 0; i < city->vexnum; i++)
+	{
+		scanf(" %c", &city->vex[i]);
+	}
+	
+	for (i = 0; i < city->vexnum; i++)
+	{
+		for (j = 0; j < city->vexnum; j++)
+		{
+			city->arc[i][j] = MAX;
+		}
+		
+	}
+	fflush(stdin);
+	printf("请输入路径\n");
+	for (i = 0; i < city->arcnum; i++)
+	{
+		scanf(" %c %c %d", &city1, &city2, &weight);
+		fflush(stdin);
+		city->arc[locatenum(city, city1)][locatenum(city, city2)] = weight;
+	}
+	fflush(stdin);
+	printf("请输入起点和终点\n");
+	scanf(" %c %c", &(*start), &(*end));
+
+	return 1;
+}
+
+void dijikstra(Graph* city, char start, char end)
+{
+	int start_num = locatenum(city, start);
+	int i;
+	int min = MAX;
+	for (i = 0; i < city->vexnum; i++)
+	{
+		S[i] = false;
+		D[i] = city->arc[start_num][i];
+		if (D[i] < MAX)
+		{
+			Path[i] = start_num;
+		}
+		else
+		{
+			Path[i] = -1;
+		}
+	}
+	S[start_num] = true;
+	D[start_num] = 0;
+
+	int other;
+	int min_num=i;
+	for (i = 1; i < city->vexnum; i++)
+	{
+		min = MAX;
+		for (other = 0; other < city->vexnum; other++)
+		{
+			if (S[other] == false && D[other] < min)
+			{
+				min = D[other];
+				min_num = other;
+			}
+		}
+		S[min_num] = true;
+		for (other = 0; other < city->vexnum; other++)
+		{
+			if (S[other] == false && (D[min_num] + city->arc[min_num][other] < D[other]))
+			{
+				D[other] = D[min_num] + city->arc[min_num][other];
+				Path[other] = min_num;
+			}
+		}
+	}
+
+}
+
+void printPath(Graph* city, int end_num)
+{
+	if (Path[end_num] != -1)
+	{
+		printPath(city, Path[end_num]);
+	}
+	printf("%c ", city->vex[end_num]);
+}
+void findend(Graph* city, char end)
+{
+	int end_num = locatenum(city, end);
+	printf("最短长度为%d\n", D[end_num]);
+	int i;
+	fflush(stdin); 
+	printf("最短路径为\n");
+	printPath(city, end_num);
+	printf("\n");
+}
+int main()
+{
+	Graph city;
+	int vexnum, arcnum;
+	char start, end;
+	while (Init(&city,&start,&end))
+	{
+		dijikstra(&city, start, end);
+		findend(&city, end);
+
+	}
+
+
+	return 0;
+}
