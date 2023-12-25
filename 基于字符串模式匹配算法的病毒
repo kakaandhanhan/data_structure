@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define MAX 1024
+#define OK 1
+#define ERROR 0
+
+typedef int Status;
+
+typedef struct Hstring
+{
+	char* str;
+	int maxlength;
+}Hstring;
+
+//让字符串喜欢一次，来代表循环字符串
+Status copyHstring(Hstring* S,int length2)
+{
+    Hstring temp;
+    Init(&temp);
+
+    if (!temp.str)
+    {
+        printf("内存分配失败\n");
+        return ERROR;
+    }
+
+    int j = 0;
+    int i = 0;
+
+    while (j < length2-1&&i<2*(length2 -1))
+    {
+        temp.str[i] = S->str[j];
+        i++;
+        j++;
+        if (j ==(length2)-1)
+        {
+            j = 0;
+        }
+    }
+
+    temp.str[i] = '\0';
+
+    free(S->str); // Free the old buffer
+    S->str = temp.str;//te the pointer to the new buffer
+
+    return OK;
+}
+
+Status Init(Hstring* S)
+{
+	S->str = malloc(sizeof(char) * MAX);
+	if (!S->str)
+	{
+		printf("创建数组失败\n");
+		return ERROR;
+	}
+	S->maxlength = MAX;
+	return OK;
+
+}
+
+int bf_cal(Hstring* mode, Hstring* main,int length2)
+{
+	int i = 0, j = 0;
+    int length_mode = length2 - 1;
+    int length_main = strlen(main->str) - 1;
+    int k = 0;
+    Hstring temp;
+    Init(&temp);
+    int q = 0;
+    int p = 0;
+    for (p = 0; p < length_mode; p++)
+    {
+        i = 0;
+        j = 0;
+        q = 0;
+        for (k = p; k < length_mode + p; k++)
+        {
+            temp.str[q] = mode->str[k];
+            q++;
+        }
+        temp.str[q] = '\0';
+        while (i < length_mode && j < length_main)
+        {
+            if (temp.str[i]==main->str[j])
+            {
+                j++;
+                i++;
+            }
+            else
+            {
+                j = j - i + 1;
+                i = 0;
+            }
+
+        }
+        if (i >= length_mode)
+        {
+            return j - length_mode + 1;
+        }
+    }
+    
+    return 0;
+}
+
+
+int main()
+{
+    Hstring str1, str2;
+    Init(&str1);
+    Init(&str2);
+    FILE* p1, * p2;
+
+    p1 = fopen("F:\\c code\\people.txt", "r");
+    if (!p1) {
+        printf("Error opening file: people.txt\n");
+
+    }
+
+   
+
+    p2 = fopen("F:\\c code\\virus.txt", "r");
+    if (!p2) {
+        printf("Error opening file: virus.txt\n");
+        fclose(p1);
+
+    }
+
+
+    while (fgets(str2.str, MAX, p2) != NULL&&fgets(str1.str,MAX,p1)!=NULL)
+    {
+        int length2 = strlen(str2.str);
+        copyHstring(&str2, length2);
+        int res;
+        res = bf_cal(&str2, &str1, length2);
+        if (res == 0)
+        {
+            printf("NO\n");
+        }
+        else
+        {
+            printf("YES\n");
+        }
+    }
+
+
+    fclose(p1);
+    fclose(p2);
+
+    return 0;
+}
