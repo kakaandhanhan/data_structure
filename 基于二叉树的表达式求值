@@ -1,0 +1,268 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 1000
+
+char Precede[7][7] = { {'>','>','<','<','<','>','>'},
+	{'>','>','<','<','<','>','>'},
+	{'>','>','>','>','<','>','>'},
+	{'>','>','>','>','<','>','>'},
+	{'<','<','<','<','<','=','0'},
+	{'>','>','>','>','0','>','>'},
+	{'<','<','<','<','<','0','='} };
+
+typedef struct tree
+{
+	int data;
+	struct tree* lchild, * rchild;
+}BitNode, * Bittree;
+
+typedef struct stack
+{
+	int* base;
+	int* top;
+	int stacksize;
+}SqStack1;//运算符栈
+
+typedef struct stack2
+{
+	Bittree* base;
+	Bittree* top;
+	int stacksize;
+}SqStack2;//节点树栈
+
+void InitStack1(SqStack1* S)
+{
+	S->base = calloc(MAX, sizeof(int));
+	if (!S->base)
+	{
+		printf("内存分配失败\n");
+		exit(0);
+	}
+	S->top = S->base;
+	S->stacksize = MAX;
+}
+
+void InitStack2(SqStack2* S)
+{
+	S->base = calloc(MAX, sizeof(Bittree));
+	if (!S->base)
+	{
+		printf("内存分配失败\n");
+		exit(0);
+	}
+	S->top = S->base;
+	S->stacksize = MAX;
+
+}
+
+void Push1(SqStack1* S, int ch)
+{
+	if (S->top - S->base == S->stacksize)
+	{
+		printf("栈满了\n");
+		exit(0);
+	}
+	*S->top++ = ch;
+}
+
+void Push2(SqStack2* S, Bittree tree)
+{
+	if (S->top - S->base == S->stacksize)
+	{
+		printf("栈满了\n");
+		exit(0);
+	}
+	*S->top++ = tree;
+}
+
+int Pop1(SqStack1* S)
+{
+	int result;
+	if (S->base == S->top)
+	{
+		printf("栈空\n");
+		exit(0);
+	}
+	result = *--S->top;
+	return result;
+}
+
+Bittree Pop2(SqStack2* S)
+{
+	Bittree result;
+	if (S->base == S->top)
+	{
+		printf("栈空\n");
+		exit(0);
+	}
+	result = *--S->top;
+	return result;
+}
+
+Bittree Gettop1(SqStack1* S)
+{
+	return *(S->top - 1);
+}
+Bittree Gettop2(SqStack2* S)
+{
+	return *(S->top - 1);
+}
+
+int sub(char ch)
+{
+	switch (ch)
+	{
+	case '+':
+		return 0;
+	case '-':
+		return 1;
+	case '*':
+		return 2;
+	case '/':
+		return 3;
+	case '(':
+		return 4;
+	case ')':
+		return 5;
+	case '=':
+		return 6;
+	}
+}
+
+char Getpre(char ch1, char ch2)
+{
+	return Precede[sub(ch1)][sub(ch2)];
+}
+
+int operate(int x1, int x2, int theta)
+{
+	switch (theta)
+	{
+	case '+':
+		return x1 + x2;
+	case '-':
+		return x1- x2;
+	case '*':
+		return x2 * x1;
+	case '/':
+		return x1/ x2;
+
+	}
+}
+
+Bittree createtreenode( BitNode* a, BitNode* b, int data)
+{
+	Bittree tree = malloc(sizeof(BitNode));
+	tree->data = data;
+	tree->lchild = a;
+	tree->rchild = b;
+	return tree;
+}
+
+int StackEmpty1(SqStack1* s)
+{
+	if (s ->top==s->base)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+SqStack2* CreateTree(char* str)
+{
+	SqStack1* OPRT;//操作符栈
+	OPRT = malloc(sizeof(SqStack1));
+	SqStack2* OPND;
+	OPND = malloc(sizeof(SqStack2));
+	InitStack1(OPRT);
+	InitStack2(OPND);
+	Push1(OPRT, '=');
+	int length = strlen(str);
+	int i = 0;
+	int theta;
+
+	while ((str[i] != '\0' || Gettop1(OPRT) != '=')&&StackEmpty1(OPRT)==0)
+	{
+		if (str[i] >= '0' && str[i] <= '9')
+		{
+			int x1 = 0;
+			while (str[i] >= '0' && str[i] <= '9')
+			{
+				x1 = x1 * 10 + str[i] - '0';
+				i++;
+			}
+			Bittree tree1 = createtreenode(NULL, NULL, x1);
+			Push2(OPND, tree1);
+		}
+		else if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/' || str[i] == '(' || str[i] == ')' || str[i] == '=')
+		{
+			switch (Getpre(Gettop1(OPRT), str[i]))
+			{
+			case'>':
+				theta = Pop1(OPRT);
+				Bittree a, b;
+				b = Pop2(OPND);
+				a = Pop2(OPND);
+				Bittree t;
+				t=createtreenode(a, b, theta);
+				Push2(OPND, t);
+				break;
+			case '=':
+				Pop1(OPRT);
+				i++;
+				break;
+			case '<':
+				Push1(OPRT, str[i]);
+				i++;
+				break;
+			}
+		}
+		else
+		{
+			printf("输入非法\n");
+			exit(0);
+		}
+	}
+	return OPND;
+}
+
+int caculate(Bittree tree)
+{
+	int lchild = 0, rchild = 0;
+	if (tree == NULL)
+	{
+		printf("Invalid expression\n");
+		exit(0);
+	}
+	if (tree->lchild== NULL && tree->rchild == NULL)
+	{
+		return tree->data;
+	}
+	else
+	{
+		lchild = caculate(tree->lchild);
+		rchild = caculate(tree->rchild);
+		return operate(lchild, rchild, tree->data);
+	}
+}
+int main()
+{
+	char str[MAX];
+	
+	while (gets(str)&&strcmp(str,"=")!=0)
+	{
+		SqStack2* OPND = NULL;
+		OPND = CreateTree(str);
+		Bittree tree =NULL;
+		tree = Gettop2(OPND);
+		int result;
+		result = caculate(tree);
+		printf("计算结果是\n");
+		printf("%d\n", result);
+	}
+	return 0;
+}
